@@ -1,7 +1,6 @@
 import './App.css';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import socket from './components/Socket';
-import { useEffect } from 'react/cjs/react.development';
 
 function App() {
   const [vuelos, setVuelos] = useState([{code:'Sin Información', airline:'', origin:[-100,-100], destination:[-100,-100], plane:'', seats: 1, passengers:[{name:'', age:1}]}]);
