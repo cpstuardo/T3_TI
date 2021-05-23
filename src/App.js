@@ -1,12 +1,19 @@
 import './App.css';
 import React, {useState, useEffect} from 'react';
 import socket from './components/Socket';
-import TextField from '@material-ui/core/TextField' ;
+import TextField from '@material-ui/core/TextField';
+import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline} from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+const icon = L.icon({ iconUrl: "/images/marker-icon.png", iconSize: [10, 15] });
+const icon_2 = L.icon({ iconUrl: "/images/asterisco.png", iconSize: [10, 10] });
+const color_line = { color: 'blue' }
 
 function App() {
   const [vuelos, setVuelos] = useState([{code:'Sin Información', airline:'', origin:[-100,-100], destination:[-100,-100], plane:'', seats: 1, passengers:[{name:'', age:1}]}]);
   const [state, setState] = useState({name:'', message:''});
   const [chat, setChat] = useState([]);
+  const [posicion, setPosicion] = useState({code:'', position: [-100, -100]})
 
   useEffect(() => {
     socket.on('CHAT', ({name, message, date}) => {
@@ -16,6 +23,10 @@ function App() {
     socket.on('FLIGHTS', data => {
       setVuelos(data)
     })  
+
+    socket.on('POSITION', data => {
+      setPosicion(data)
+    })
   }) 
 
   // CHAT
@@ -38,6 +49,7 @@ function App() {
     ))
   }
   
+  // VUELOS
   const getVuelos = (e) => {
     e.preventDefault()
     socket.emit('FLIGHTS')
@@ -71,6 +83,39 @@ function App() {
     ))
   }
 
+  // MAPA
+  const renderPosicion = () => {
+    return (<Marker position={[posicion.position[0], posicion.position[1]]} icon={icon_2} key={posicion.code}>
+      <Popup>
+        Código: {posicion.code}
+      </Popup>
+    </Marker>)
+  }
+
+  const renderOrigen = () => {
+    return vuelos.map(({origin}, index) => (
+      <div key = {index}>
+      <Marker position={[origin[0], origin[1]]} icon={icon}></Marker>
+      </div>
+    ))
+  }
+
+  const renderDestino = () => {
+    return vuelos.map(({destination}, index) => (
+      <div key = {index}>
+      <Marker position={[destination[0], destination[1]]} icon={icon}></Marker>
+      </div>
+    ))
+  }
+
+  const renderRuta = () => {
+    return vuelos.map(({origin, destination}, index) => (
+      <div key = {index}>
+      <Polyline pathOptions={color_line} positions={[[origin[0], origin[1]],[destination[0], destination[1]]]} />
+      </div>
+    ))
+  }
+
   return (
       <div className = "App">
         <div className = "header">
@@ -81,6 +126,17 @@ function App() {
         </div>
         <div>
           <div className= "column-mapa">
+          <h2>Mapa vuelos</h2>
+            <MapContainer center={[-5,10]} zoom={2} scrollWheelZoom={false}>
+              <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {renderOrigen()}
+              {renderDestino()}
+              {renderRuta()}
+              {renderPosicion()}
+            </MapContainer>
           </div>
         </div>
         <div className="column-chat">
