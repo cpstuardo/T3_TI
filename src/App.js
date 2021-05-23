@@ -5,8 +5,10 @@ import TextField from '@material-ui/core/TextField';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, Polyline} from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-const icon = L.icon({ iconUrl: "/images/marker-icon.png", iconSize: [10, 15] });
-const icon_2 = L.icon({ iconUrl: "/images/asterisco.png", iconSize: [10, 10] });
+import asterisco from './images/asterisco.png';
+import marker_icono from "./images/marker-icon.png"
+const icon = L.icon({ iconUrl: marker_icono, iconSize: [10, 15] });
+const icon_2 = L.icon({ iconUrl: asterisco, iconSize: [10, 10] });
 const color_line = { color: 'blue' }
 
 function App() {
